@@ -23,6 +23,7 @@ import querystringsafe_base64
 from product_details.version_compare import Version
 
 from lib import l10n_utils
+from lib.l10n_utils.dotlang import lang_file_is_active
 from bedrock.base.urlresolvers import reverse
 from bedrock.firefox.firefox_details import firefox_desktop, firefox_android
 from bedrock.firefox.forms import SendToDeviceWidgetForm
@@ -30,6 +31,7 @@ from bedrock.mozorg.util import HttpResponseJSON
 from bedrock.newsletter.forms import NewsletterFooterForm
 from bedrock.releasenotes import version_re
 from bedrock.utils.views import VariationMixin
+from bedrock.wordpress.views import BlogPostsView
 
 
 UA_REGEXP = re.compile(r"Firefox/(%s)" % version_re)
@@ -526,3 +528,38 @@ def ios_testflight(request):
     return l10n_utils.render(request,
                              'firefox/testflight.html',
                              {'newsletter_form': newsletter_form})
+
+
+def features_landing(request):
+    locale = l10n_utils.get_locale(request)
+
+    if lang_file_is_active('firefox/features/hub', locale):
+        template = 'firefox/features/index.html'
+    else:
+        template = 'firefox/features.html'
+
+    return l10n_utils.render(request, template)
+
+
+class FeaturesPrivateBrowsingView(BlogPostsView):
+    template_name = 'firefox/features/private-browsing.html'
+    blog_posts_limit = 3
+    blog_posts_template_variable = 'articles'
+    blog_slugs = 'firefox'
+    blog_tags = ['privacy', 'security']
+
+
+class FeaturesFastView(BlogPostsView):
+    template_name = 'firefox/features/fast.html'
+    blog_posts_limit = 3
+    blog_posts_template_variable = 'articles'
+    blog_slugs = 'firefox'
+    blog_tags = ['fastest']
+
+
+class FeaturesIndependentView(BlogPostsView):
+    template_name = 'firefox/features/independent.html'
+    blog_posts_limit = 3
+    blog_posts_template_variable = 'articles'
+    blog_slugs = 'firefox'
+    blog_tags = ['browser']
